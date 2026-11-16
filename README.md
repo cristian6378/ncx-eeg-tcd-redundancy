@@ -4,7 +4,7 @@
 
 Analysis code for *“Two origins of feature redundancy in stroke biosignals:
 algebraic construction in transcranial Doppler, shared physiology in
-quantitative EEG”* (Valchev et al., 2026), under submission to
+quantitative EEG”* (Rodriguez Rivero et al., 2026), under submission to
 *Neuroscience Informatics*.
 
 Redundancy among biosignal descriptors is usually treated as a nuisance to be
