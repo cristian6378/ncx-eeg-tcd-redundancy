@@ -1,0 +1,17 @@
+# data: never committed, see data/README.md
+data/**
+!data/README.md
+
+# analysis outputs
+results/
+*.csv
+!tests/**/*.csv
+!reference_results/*.csv
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store

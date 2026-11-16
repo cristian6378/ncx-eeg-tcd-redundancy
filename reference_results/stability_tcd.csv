@@ -1,0 +1,16 @@
+feature,selection_frequency
+canopy_score,1.0
+peaks_score,1.0
+onset_score,1.0
+asym_pi,1.0
+sd_ratio,0.96
+asym_mfv,0.85
+psv,0.82
+mfv,0.16
+asym_edv,0.12
+pulse_amplitude,0.08
+resistance_index,0.04
+asym_psv,0.03
+edv,0.0
+pulsatility_index,0.0
+curvature,0.0

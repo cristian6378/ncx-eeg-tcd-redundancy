@@ -1,0 +1,11 @@
+modality,model,sd_of_differences,n_folds,power_at_0p05,min_margin_80pct
+eeg,Decision Tree,0.0366,25,1.0,0.022
+eeg,Logistic Regression,0.0282,25,1.0,0.017
+eeg,Random Forest,0.0242,25,1.0,0.0146
+eeg,SVM (Linear),0.0155,25,1.0,0.0094
+eeg,SVM (RBF),0.027,25,1.0,0.0163
+tcd,Decision Tree,0.0866,25,0.754,0.0522
+tcd,Logistic Regression,0.0593,25,0.986,0.0357
+tcd,Random Forest,0.0827,25,0.803,0.0498
+tcd,SVM (Linear),0.038,25,1.0,0.0229
+tcd,SVM (RBF),0.072,25,0.916,0.0434

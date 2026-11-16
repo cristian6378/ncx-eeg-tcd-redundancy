@@ -1,0 +1,110 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite both the paper and the two datasets
+  listed under `references`. The datasets are not redistributed here.
+title: "Two origins of feature redundancy: analysis code for qEEG and transcranial Doppler"
+abstract: >-
+  Analysis code for a matched-taxonomy comparison of feature redundancy in
+  stroke-related quantitative EEG and transcranial Doppler ultrasound. Both
+  descriptor sets are mapped onto one family taxonomy and reduced to an
+  11-descriptor core identical in family structure and cardinality, then
+  passed through one label-agnostic pipeline with every data-dependent step
+  re-fitted inside each subject-grouped training fold. Redundancy is treated
+  as the measured quantity rather than a nuisance, which separates algebraic
+  redundancy (closed-form construction, dominant in TCD) from physiological
+  redundancy (shared causes, dominant in qEEG).
+type: software
+license: MIT
+version: 1.1.0
+date-released: "2026-11-16"
+keywords:
+  - feature redundancy
+  - quantitative EEG
+  - transcranial Doppler
+  - feature selection
+  - equivalence testing
+  - stroke
+authors:
+  - family-names: Valchev
+    given-names: "FIRST NAME"            # TODO complete before release
+  - name: "Co-authors: see the manuscript for the full author list"   # TODO
+
+preferred-citation:
+  type: article
+  title: >-
+    Two origins of feature redundancy in stroke biosignals: algebraic
+    construction in transcranial Doppler, shared physiology in quantitative EEG
+  journal: "Neuroscience Informatics"
+  year: 2026
+  status: submitted
+  authors:
+    - family-names: Valchev
+      given-names: "FIRST NAME"          # TODO complete before release
+    - name: "et al."                     # TODO replace with the full author list
+
+references:
+  # The figshare deposit, cited as its depositors cite it in the data
+  # descriptor (Scientific Data 11, 131, reference 40).
+  - type: data
+    title: "EEG datasets of stroke patients"
+    year: 2022
+    publisher:
+      name: figshare
+    doi: 10.6084/m9.figshare.21679035
+    authors:
+      - {family-names: Liu, given-names: Haijie}
+      - {family-names: Lv,  given-names: Xiaodong}
+
+  - type: article
+    title: >-
+      An EEG motor imagery dataset for brain computer interface in acute
+      stroke patients
+    journal: "Scientific Data"
+    volume: 11
+    start: 131
+    year: 2024
+    doi: 10.1038/s41597-023-02787-8
+    authors:
+      - {family-names: Liu,  given-names: Haijie}
+      - {family-names: Wei,  given-names: Penghu}
+      - {family-names: Wang, given-names: Haochong}
+      - {family-names: Lv,   given-names: Xiaodong}
+      - {family-names: Duan, given-names: Wei}
+      - {family-names: Li,   given-names: Meijie}
+      - {family-names: Zhao, given-names: Yan}
+      - {family-names: Wang, given-names: Qingmei}
+      - {family-names: Chen, given-names: Xinyuan}
+      - {family-names: Shi,  given-names: Gaige}
+      - {family-names: Han,  given-names: Bo}
+      - {family-names: Hao,  given-names: Junwei}
+
+  # The figshare record credits Samuel Thorpe as its sole author.
+  - type: data
+    title: "TCD Clustering Data"
+    year: 2019
+    publisher:
+      name: figshare
+    doi: 10.6084/m9.figshare.9037388
+    authors:
+      - {family-names: Thorpe, given-names: "Samuel G."}
+
+  - type: article
+    title: >-
+      Toward automated classification of pathological transcranial Doppler
+      waveform morphology via spectral clustering
+    journal: "PLOS ONE"
+    volume: 15
+    issue: 2
+    start: e0228642
+    year: 2020
+    doi: 10.1371/journal.pone.0228642
+    authors:
+      - {family-names: Thorpe,      given-names: "Samuel G."}
+      - {family-names: Thibeault,   given-names: "Corey M."}
+      - {family-names: Canac,       given-names: Nicolas}
+      - {family-names: Jalaleddini, given-names: Kian}
+      - {family-names: Dorn,        given-names: "Amber Y."}
+      - {family-names: Wilk,        given-names: "Seth J."}
+      - {family-names: Devlin,      given-names: "Thomas G."}
+      - {family-names: Scalzo,      given-names: Fabien}
+      - {family-names: Hamilton,    given-names: "Robert B."}

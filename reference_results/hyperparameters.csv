@@ -1,0 +1,11 @@
+model,hyperparameter,search_space,fixed
+Logistic Regression,C,"log-uniform [0.0001, 100]",max_iter=5000; solver=lbfgs; penalty=deprecated; random_state=20260927
+SVM (Linear),C,"log-uniform [0.0001, 100]",kernel=linear; max_iter=-1; random_state=20260927
+SVM (RBF),C,"log-uniform [0.01, 1000]",kernel=rbf; max_iter=-1; random_state=20260927
+,gamma,"log-uniform [0.0001, 1]",
+Decision Tree,max_depth,"integer uniform [2, 11]",random_state=20260927
+,min_samples_leaf,"integer uniform [2, 29]",
+,ccp_alpha,"uniform [0, 0.03]",
+Random Forest,max_depth,"integer uniform [2, 15]",n_estimators=300; random_state=20260927
+,min_samples_leaf,"integer uniform [1, 11]",
+,max_features,"{sqrt, log2, None}",

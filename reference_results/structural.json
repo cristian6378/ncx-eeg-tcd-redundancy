@@ -1,0 +1,303 @@
+{
+  "eeg": {
+    "native": {
+      "n": 17,
+      "mean_r": 0.2039906354421499,
+      "median_r": 0.12694775252774906,
+      "max_r": 0.9974463895339725,
+      "f06": 0.08088235294117647,
+      "f08": 0.03676470588235294,
+      "spearman_mean": 0.19352727251049462,
+      "pc1": 0.2863134575599509,
+      "n80": 8,
+      "n90": 10,
+      "pr_ratio": 6.943797285163735,
+      "after_corr": 12,
+      "retained": 12,
+      "kept": [
+        "delta",
+        "delta_alpha",
+        "theta_alpha",
+        "skewness",
+        "kurtosis",
+        "higuchi_fd",
+        "wpli",
+        "ms_coherence",
+        "pdbsi_delta",
+        "pdbsi_theta",
+        "pdbsi_alpha",
+        "pdbsi_beta"
+      ],
+      "dropped_corr": [
+        "dt_ab",
+        "alpha",
+        "beta",
+        "sample_entropy",
+        "theta"
+      ],
+      "dropped_vif": [],
+      "final_vif": {
+        "delta": 2.3,
+        "delta_alpha": 2.39,
+        "theta_alpha": 1.34,
+        "skewness": 1.04,
+        "kurtosis": 1.14,
+        "higuchi_fd": 1.78,
+        "wpli": 1.4,
+        "ms_coherence": 1.37,
+        "pdbsi_delta": 1.15,
+        "pdbsi_theta": 1.14,
+        "pdbsi_alpha": 1.1,
+        "pdbsi_beta": 1.15
+      }
+    },
+    "core": {
+      "n": 11,
+      "mean_r": 0.22913321779279364,
+      "median_r": 0.12670259255443078,
+      "max_r": 0.9974463895339725,
+      "f06": 0.12727272727272726,
+      "f08": 0.07272727272727272,
+      "spearman_mean": 0.23687873259241043,
+      "pc1": 0.33388555736746484,
+      "n80": 5,
+      "n90": 6,
+      "pr_ratio": 4.826133047235797,
+      "after_corr": 7,
+      "retained": 7,
+      "kept": [
+        "theta",
+        "delta_alpha",
+        "theta_alpha",
+        "pdbsi_delta",
+        "pdbsi_theta",
+        "pdbsi_alpha",
+        "pdbsi_beta"
+      ],
+      "dropped_corr": [
+        "dt_ab",
+        "alpha",
+        "beta",
+        "delta"
+      ],
+      "dropped_vif": [],
+      "final_vif": {
+        "theta": 1.05,
+        "delta_alpha": 1.23,
+        "theta_alpha": 1.25,
+        "pdbsi_delta": 1.1,
+        "pdbsi_theta": 1.12,
+        "pdbsi_alpha": 1.09,
+        "pdbsi_beta": 1.09
+      }
+    },
+    "family_blocks": {
+      "columns": [
+        "asymmetry",
+        "complexity",
+        "coupling",
+        "distribution",
+        "magnitude",
+        "ratio"
+      ],
+      "index": [
+        "asymmetry",
+        "complexity",
+        "coupling",
+        "distribution",
+        "magnitude",
+        "ratio"
+      ],
+      "data": [
+        [
+          0.1697,
+          0.104,
+          0.0798,
+          0.0338,
+          0.1128,
+          0.0657
+        ],
+        [
+          0.104,
+          0.5005,
+          0.49,
+          0.0575,
+          0.4487,
+          0.178
+        ],
+        [
+          0.0798,
+          0.49,
+          0.2681,
+          0.0874,
+          0.3456,
+          0.1643
+        ],
+        [
+          0.0338,
+          0.0575,
+          0.0874,
+          0.0905,
+          0.1065,
+          0.1233
+        ],
+        [
+          0.1128,
+          0.4487,
+          0.3456,
+          0.1065,
+          0.8419,
+          0.173
+        ],
+        [
+          0.0657,
+          0.178,
+          0.1643,
+          0.1233,
+          0.173,
+          0.6213
+        ]
+      ]
+    },
+    "cohort": {
+      "n_rows": 2000,
+      "n_subjects": 50,
+      "classes": {
+        "left": 1000,
+        "right": 1000
+      }
+    }
+  },
+  "tcd": {
+    "native": {
+      "n": 15,
+      "mean_r": 0.256004157228906,
+      "median_r": 0.1593295083100537,
+      "max_r": 0.9633451296528058,
+      "f06": 0.13333333333333333,
+      "f08": 0.08571428571428572,
+      "spearman_mean": 0.26506017796122905,
+      "pc1": 0.2808928451631092,
+      "n80": 5,
+      "n90": 6,
+      "pr_ratio": 5.2480421639295525,
+      "after_corr": 7,
+      "retained": 7,
+      "kept": [
+        "psv",
+        "sd_ratio",
+        "onset_score",
+        "peaks_score",
+        "canopy_score",
+        "asym_mfv",
+        "asym_pi"
+      ],
+      "dropped_corr": [
+        "asym_psv",
+        "asym_edv",
+        "edv",
+        "mfv",
+        "pulsatility_index",
+        "pulse_amplitude",
+        "curvature",
+        "resistance_index"
+      ],
+      "dropped_vif": [],
+      "final_vif": {
+        "psv": 1.09,
+        "sd_ratio": 1.14,
+        "onset_score": 1.46,
+        "peaks_score": 1.56,
+        "canopy_score": 1.68,
+        "asym_mfv": 1.33,
+        "asym_pi": 1.22
+      }
+    },
+    "core": {
+      "n": 11,
+      "mean_r": 0.31566819863771867,
+      "median_r": 0.1563408097945842,
+      "max_r": 0.9633451296528085,
+      "f06": 0.23636363636363636,
+      "f08": 0.14545454545454545,
+      "spearman_mean": 0.3259004244050422,
+      "pc1": 0.32946665078722254,
+      "n80": 3,
+      "n90": 4,
+      "pr_ratio": 3.6890769319896903,
+      "after_corr": 4,
+      "retained": 4,
+      "kept": [
+        "mfv",
+        "sd_ratio",
+        "asym_mfv",
+        "asym_pi"
+      ],
+      "dropped_corr": [
+        "asym_psv",
+        "asym_edv",
+        "edv",
+        "psv",
+        "pulsatility_index",
+        "resistance_index",
+        "pulse_amplitude"
+      ],
+      "dropped_vif": [],
+      "final_vif": {
+        "mfv": 1.04,
+        "sd_ratio": 1.05,
+        "asym_mfv": 1.2,
+        "asym_pi": 1.21
+      }
+    },
+    "family_blocks": {
+      "columns": [
+        "asymmetry",
+        "magnitude",
+        "morphology",
+        "ratio"
+      ],
+      "index": [
+        "asymmetry",
+        "magnitude",
+        "morphology",
+        "ratio"
+      ],
+      "data": [
+        [
+          0.6812,
+          0.094,
+          0.2039,
+          0.0589
+        ],
+        [
+          0.094,
+          0.731,
+          0.1229,
+          0.3444
+        ],
+        [
+          0.2039,
+          0.1229,
+          0.4062,
+          0.1544
+        ],
+        [
+          0.0589,
+          0.3444,
+          0.1544,
+          0.8485
+        ]
+      ]
+    },
+    "cohort": {
+      "n_rows": 951,
+      "n_subjects": 104,
+      "classes": {
+        "IHC": 451,
+        "LVO": 315,
+        "OHC": 185
+      }
+    }
+  }
+}
