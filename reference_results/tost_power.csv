@@ -1,11 +1,11 @@
-modality,model,sd_of_differences,n_folds,power_at_0p05,min_margin_80pct
-eeg,Decision Tree,0.0366,25,1.0,0.022
-eeg,Logistic Regression,0.0282,25,1.0,0.017
-eeg,Random Forest,0.0242,25,1.0,0.0146
-eeg,SVM (Linear),0.0155,25,1.0,0.0094
-eeg,SVM (RBF),0.027,25,1.0,0.0163
-tcd,Decision Tree,0.0866,25,0.754,0.0522
-tcd,Logistic Regression,0.0593,25,0.986,0.0357
-tcd,Random Forest,0.0827,25,0.803,0.0498
-tcd,SVM (Linear),0.038,25,1.0,0.0229
-tcd,SVM (RBF),0.072,25,0.916,0.0434
+modality,model,sd_of_differences,n_folds,test_train_ratio,power_at_0p05,min_margin_80pct
+eeg,Decision Tree,0.0366,25,0.25,0.589,0.0593
+eeg,Logistic Regression,0.0282,25,0.25,0.879,0.0458
+eeg,Random Forest,0.0242,25,0.25,0.963,0.0393
+eeg,SVM (Linear),0.0155,25,0.25,1.0,0.0252
+eeg,SVM (RBF),0.027,25,0.25,0.909,0.0439
+tcd,Decision Tree,0.0866,25,0.25,0.0,0.1405
+tcd,Logistic Regression,0.0593,25,0.25,0.0,0.0962
+tcd,Random Forest,0.0827,25,0.25,0.0,0.1342
+tcd,SVM (Linear),0.038,25,0.25,0.535,0.0616
+tcd,SVM (RBF),0.072,25,0.25,0.0,0.1168

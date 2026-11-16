@@ -14,11 +14,13 @@ them.
 | `structural.json` | Per modality and feature space: mean, median and max \|r\|, Spearman check, fraction of pairs ≥ 0.6 and ≥ 0.8, PCA profile, participation ratio, reduction chain, retained and dropped descriptors, final VIF, family-block correlation matrix | `run.py analyse` |
 | `per_fold_metrics.csv` | Every metric for every modality × condition × model × repeat × fold (1,250 rows) | `run.py analyse` |
 | `summary_metrics.csv` | Means and standard deviations of the above | `run.py analyse` |
-| `statistical_comparisons.csv` | Pairwise condition comparisons: Nadeau–Bengio corrected *t*, Cliff's delta, Holm-adjusted *p* | `run.py analyse` |
-| `equivalence_tost.csv` | TOST of full versus reduced: 5 models × 2 modalities × 4 metrics = 40 tests | `run.py analyse` |
+| `statistical_comparisons.csv` | Pairwise condition comparisons: Wilcoxon, Nadeau–Bengio corrected *t* (n_test/n_train = 1/4), Cliff's delta, Holm-adjusted *p* | `run.py analyse` |
+| `equivalence_tost.csv` | TOST of full versus reduced: 5 models × 2 modalities × 4 metrics = 40 tests, Nadeau–Bengio corrected (primary) | `run.py analyse` |
+| `equivalence_tost_uncorrected.csv` | The same 40 tests without the correction, as first computed | `run.py analyse` |
 | `vs_chance.csv` | Each model and condition against analytic chance | `run.py analyse` |
 | `stability_eeg.csv`, `stability_tcd.csv` | Per-descriptor selection frequency across the 25 evaluation folds | `run.py analyse` |
-| `tost_power.csv` | Power of each TOST at ±0.05 and the minimum margin detectable at 80 % power | `run_extras.py perfold` |
+| `tost_power.csv` | Power of each TOST at ±0.05 and the minimum margin detectable at 80 % power, corrected | `run_extras.py perfold` |
+| `tost_power_uncorrected.csv` | The same, without the correction, as first computed | `run_extras.py perfold` |
 | `threshold_sweep.csv` | Reduction chain at every cell of the 14 × 4 threshold grid, 4 feature sets (224 chains) | `run_extras.py structure` |
 | `selector_stability.csv` | Per-descriptor selection frequency across the 50 partitions of the stability analysis | `run_extras.py structure` |
 | `pooling_sensitivity.csv` | Five channel-pooling operators on qEEG | `pooling_eval.py` |

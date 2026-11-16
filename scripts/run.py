@@ -195,22 +195,14 @@ def cmd_analyse(cfg: Config) -> None:
     summary = st.summarise_per_fold(per_fold)
     tables["summary_metrics"] = summary
 
-    comps = []
-    for metric in ("macro_f1", "balanced_accuracy", "sensitivity_macro",
-                   "specificity_macro", "ppv_macro", "npv_macro",
-                   "auc_macro_ovr"):
-        for cond in ("mrmr", "relieff", "lasso"):
-            if cond in set(per_fold.condition):
-                c = st.compare_conditions(per_fold, metric, "reduced", cond, cfg)
-                if len(c):
-                    c["comparison"] = f"reduced_vs_{cond}"
-                    comps.append(c)
-        c = st.compare_conditions(per_fold, metric, "full", "reduced", cfg)
-        if len(c):
-            c["comparison"] = "full_vs_reduced"
-            comps.append(c)
-    if comps:
-        tables["statistical_comparisons"] = pd.concat(comps, ignore_index=True)
+    comps = st.comparison_table(per_fold, cfg)
+    if len(comps):
+        tables["statistical_comparisons"] = comps
+    # Equivalence of full and reduced, Nadeau-Bengio corrected (primary) and
+    # uncorrected (reported for comparison in the supplementary material).
+    tables["equivalence_tost"] = st.equivalence_table(per_fold, corrected=True)
+    tables["equivalence_tost_uncorrected"] = st.equivalence_table(
+        per_fold, corrected=False)
 
     if profiles:
         rep.fig_pca(profiles, figs / "fig_pca.png")

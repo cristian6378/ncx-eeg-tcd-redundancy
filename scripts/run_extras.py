@@ -51,7 +51,8 @@ from ncx.selectors import make_selector
 from ncx.sensitivity import (bootstrap_redundancy_gap,
                              permutation_redundancy_gap, sweep_agreement,
                              threshold_sweep)
-from ncx.stats import min_detectable_margin, nogueira_stability, tost_power
+from ncx.stats import (min_detectable_margin, nadeau_bengio_ratio,
+                       nogueira_stability, tost_power)
 
 COND_ORDER = ["full", "reduced", "mrmr", "relieff", "lasso"]
 SELECTORS = ["mrmr", "relieff", "lasso"]
@@ -150,7 +151,12 @@ def posthoc_block(pf: pd.DataFrame, metric: str, n_perm: int, seed: int) -> dict
     return out
 
 
-def tost_power_table(pf: pd.DataFrame, metric: str) -> pd.DataFrame:
+def tost_power_table(pf: pd.DataFrame, metric: str,
+                     corrected: bool = True) -> pd.DataFrame:
+    """Power of each full-vs-reduced TOST at the margin, and the minimum
+    margin detectable at 80 % power. `corrected` applies the Nadeau-Bengio
+    variance inflation, as the primary equivalence tests do."""
+    ratio = nadeau_bengio_ratio(pf) if corrected else {}
     rows = []
     key = ["modality", "model", "repeat", "fold"]
     full = pf[pf.condition == "full"].set_index(key)[metric]
@@ -159,10 +165,14 @@ def tost_power_table(pf: pd.DataFrame, metric: str) -> pd.DataFrame:
     for (modality, model), g in diff.groupby(["modality", "model"]):
         sd = float(g[metric].std(ddof=1))
         n = int(len(g))
+        r = ratio.get(modality, 0.0)
         rows.append({"modality": modality, "model": model,
                      "sd_of_differences": round(sd, 4), "n_folds": n,
-                     "power_at_0p05": round(tost_power(sd, n, EQUIV_MARGIN), 3),
-                     "min_margin_80pct": round(min_detectable_margin(sd, n), 4)})
+                     "test_train_ratio": r,
+                     "power_at_0p05": round(tost_power(
+                         sd, n, EQUIV_MARGIN, test_train_ratio=r), 3),
+                     "min_margin_80pct": round(min_detectable_margin(
+                         sd, n, test_train_ratio=r), 4)})
     return pd.DataFrame(rows)
 
 
@@ -173,10 +183,12 @@ def stage_perfold(out: Path, per_fold: Path, n_perm: int, seed: int) -> None:
     anova = anova_block(pf, "macro_f1", n_perm, seed)
     log("post-hoc decomposition ...")
     posthoc = posthoc_block(pf, "macro_f1", n_perm, seed)
-    power = tost_power_table(pf, "macro_f1")
     tables = out / "tables"
     tables.mkdir(parents=True, exist_ok=True)
-    power.to_csv(tables / "tost_power.csv", index=False)
+    tost_power_table(pf, "macro_f1", corrected=True).to_csv(
+        tables / "tost_power.csv", index=False)
+    tost_power_table(pf, "macro_f1", corrected=False).to_csv(
+        tables / "tost_power_uncorrected.csv", index=False)
     _merge_into(tables / "extras.json", {"anova": anova, "anova_posthoc": posthoc})
     log(f"wrote {tables / 'extras.json'} and {tables / 'tost_power.csv'}")
 

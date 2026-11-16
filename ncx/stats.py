@@ -93,8 +93,7 @@ def compare_conditions(per_fold: pd.DataFrame, metric: str,
         av = grp.to_numpy(dtype=float)
         bv = b.loc[grp.index].to_numpy(dtype=float)
         d = av - bv
-        n_test = float(sizes.loc[grp.index, "n_test"].mean())
-        n_train = max(1.0, (len(np.unique(grp.index)) - 1) * n_test)
+        n_test, n_train = _mean_split_sizes(sizes.loc[grp.index, "n_test"])
         try:
             w_p = stats.wilcoxon(av, bv, zero_method="zsplit").pvalue
         except Exception:                       # noqa: BLE001
@@ -141,7 +140,36 @@ def summarise_per_fold(per_fold: pd.DataFrame) -> pd.DataFrame:
 # Extended inference
 # --------------------------------------------------------------------------
 
-def tost_equivalence(diff, bound: float, alpha: float = 0.05):
+def _mean_split_sizes(n_test_per_fold: pd.Series) -> tuple[float, float]:
+    """Mean test- and training-set sizes of a repeated k-fold design.
+
+    `n_test_per_fold` is indexed by (..., repeat, fold). Within one repeat
+    the test sets partition the data, so the dataset size N is their sum and
+    each fold trains on N - n_test. (An earlier version took n_train as
+    (J - 1) * n_test with J the number of folds across *all* repeats, which
+    for 5 x 5 folds overstated n_train sixfold and under-corrected every
+    Nadeau-Bengio test.)
+    """
+    s = n_test_per_fold.astype(float)
+    reps = s.index.get_level_values("repeat")
+    N = float(s.groupby(reps).sum().mean())
+    n_test = float(s.mean())
+    return n_test, max(1.0, N - n_test)
+
+
+def nadeau_bengio_ratio(per_fold: pd.DataFrame) -> dict:
+    """n_test / n_train per modality, for the corrected variance."""
+    out = {}
+    key = ["modality", "model", "condition", "repeat", "fold"]
+    for mod, g in per_fold.groupby("modality"):
+        one = g[(g.model == g.model.iloc[0]) & (g.condition == g.condition.iloc[0])]
+        n_test, n_train = _mean_split_sizes(one.set_index(key)["n_test"])
+        out[mod] = n_test / n_train
+    return out
+
+
+def tost_equivalence(diff, bound: float, alpha: float = 0.05,
+                     test_train_ratio: float = 0.0):
     """Two one-sided tests for equivalence within +/- `bound`.
 
     A non-significant difference test is not evidence of equivalence: it fails
@@ -155,7 +183,11 @@ def tost_equivalence(diff, bound: float, alpha: float = 0.05):
     n = d.size
     if n < 3:
         return {"p_tost": np.nan, "equivalent": False, "n": int(n)}
-    se = d.std(ddof=1) / np.sqrt(n)
+    # With test_train_ratio > 0 the variance of the mean difference is
+    # inflated by (1/J + n_test/n_train), as in nadeau_bengio_t: repeated
+    # folds share training data, and treating them as independent makes an
+    # equivalence claim look better supported than it is.
+    se = d.std(ddof=1) * np.sqrt(1.0 / n + test_train_ratio)
     if se == 0:
         eq = abs(d.mean()) < bound
         return {"p_tost": 0.0 if eq else 1.0, "equivalent": bool(eq), "n": int(n),
@@ -256,7 +288,7 @@ def nogueira_stability(selections, n_features: int) -> dict:
 
 
 def tost_power(sd: float, n: int, bound: float, true_delta: float = 0.0,
-               alpha: float = 0.05) -> float:
+               alpha: float = 0.05, test_train_ratio: float = 0.0) -> float:
     """Power of a paired TOST at a given margin, SD and sample size.
 
     Reported so that the equivalence margin is defensible on statistical
@@ -265,7 +297,7 @@ def tost_power(sd: float, n: int, bound: float, true_delta: float = 0.0,
     """
     if sd <= 0 or n < 3:
         return np.nan
-    se = sd / np.sqrt(n)
+    se = sd * np.sqrt(1.0 / n + test_train_ratio)
     df = n - 1
     t_crit = stats.t.ppf(1 - alpha, df)
     # probability that both one-sided tests reject, via the shifted t
@@ -276,13 +308,74 @@ def tost_power(sd: float, n: int, bound: float, true_delta: float = 0.0,
 
 
 def min_detectable_margin(sd: float, n: int, power: float = 0.80,
-                          alpha: float = 0.05) -> float:
+                          alpha: float = 0.05,
+                          test_train_ratio: float = 0.0) -> float:
     """Smallest equivalence margin achieving the target power."""
     lo, hi = 1e-4, 1.0
     for _ in range(60):
         mid = 0.5 * (lo + hi)
-        if tost_power(sd, n, mid) < power:
+        if tost_power(sd, n, mid, alpha=alpha,
+                      test_train_ratio=test_train_ratio) < power:
             lo = mid
         else:
             hi = mid
     return float(hi)
+
+
+EQUIVALENCE_METRICS = ("macro_f1", "balanced_accuracy",
+                       "sensitivity_macro", "specificity_macro")
+
+
+def equivalence_table(per_fold: pd.DataFrame, bound: float = 0.05,
+                      corrected: bool = True, alpha: float = 0.05,
+                      metrics=EQUIVALENCE_METRICS) -> pd.DataFrame:
+    """TOST of full versus reduced for every model x modality x metric.
+
+    Holm-adjusted across the whole table. With `corrected`, the standard
+    error carries the Nadeau-Bengio inflation computed from the fold sizes.
+    """
+    ratio = nadeau_bengio_ratio(per_fold) if corrected else {}
+    key = ["modality", "model", "repeat", "fold"]
+    rows = []
+    for metric in metrics:
+        full = per_fold[per_fold.condition == "full"].set_index(key)[metric]
+        red = per_fold[per_fold.condition == "reduced"].set_index(key)[metric]
+        diff = (full - red).dropna().reset_index()
+        for (mod, model), g in diff.groupby(["modality", "model"]):
+            r = ratio.get(mod, 0.0)
+            t = tost_equivalence(g[metric].to_numpy(), bound, alpha, r)
+            rows.append({"modality": mod, "model": model, "metric": metric,
+                         "delta": t.get("mean"), "bound": bound,
+                         "p_tost": t["p_tost"], "equivalent": t["equivalent"],
+                         "ci90_lo": t.get("ci90_lo"), "ci90_hi": t.get("ci90_hi"),
+                         "test_train_ratio": r})
+    out = pd.DataFrame(rows)
+    out["p_tost_holm"] = holm_bonferroni(out["p_tost"].to_numpy(), alpha)[0]
+    out["equivalent"] = out["p_tost_holm"] < alpha
+    return out
+
+
+COMPARISON_METRICS = ("macro_f1", "balanced_accuracy", "sensitivity_macro",
+                      "specificity_macro", "ppv_macro", "npv_macro",
+                      "auc_macro_ovr")
+
+
+def comparison_table(per_fold: pd.DataFrame, cfg=None,
+                     metrics=COMPARISON_METRICS) -> pd.DataFrame:
+    """Full vs reduced, and reduced vs each supervised selector, per metric."""
+    comps = []
+    present = set(per_fold.condition)
+    for metric in metrics:
+        if metric not in per_fold:
+            continue
+        for cond in ("mrmr", "relieff", "lasso"):
+            if cond in present:
+                c = compare_conditions(per_fold, metric, "reduced", cond, cfg)
+                if len(c):
+                    c["comparison"] = f"reduced_vs_{cond}"
+                    comps.append(c)
+        c = compare_conditions(per_fold, metric, "full", "reduced", cfg)
+        if len(c):
+            c["comparison"] = "full_vs_reduced"
+            comps.append(c)
+    return pd.concat(comps, ignore_index=True) if comps else pd.DataFrame()

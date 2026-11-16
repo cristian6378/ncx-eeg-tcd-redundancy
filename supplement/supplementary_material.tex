@@ -1,0 +1,255 @@
+%% Supplementary Material S1.
+%% Build:  python scripts/make_supplement.py   (writes build/tables, build/fig_*)
+%%         cd supplement && pdflatex supplementary_material && pdflatex supplementary_material
+%% Anonymous, to match the manuscript under review.
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathptmx}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
+\usepackage{placeins}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+
+\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thesubsection}{S\arabic{section}.\arabic{subsection}}
+\graphicspath{{build/}}
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries Supplementary Material S1}\\[6pt]
+{\normalsize Two origins of feature redundancy in stroke biosignals: algebraic
+construction in transcranial Doppler, shared physiology in quantitative EEG}\\[8pt]
+{\small Supplementary methods, Supplementary Tables S1--S11 and Supplementary
+Figures S1--S2. The complete numeric results are provided separately as
+Supplementary Data S2 (Excel workbook).}
+\end{center}
+
+\noindent References to tables, figures and sections without the prefix S refer
+to the main text.
+
+\tableofcontents
+
+%=============================================================================
+\section{Supplementary methods}
+%=============================================================================
+
+The main text describes each analysis and the reasons for it. This section
+gives the formulas and settings needed to reproduce them. The analysis code
+reproduces every table and figure here from the result files listed in
+Supplementary Data S2.
+
+\subsection{Correction for overlapping cross-validation folds}
+\label{sec:s-nb}
+
+Every paired comparison uses the $J = 25$ fold-wise differences
+$d_1,\dots,d_J$ of the five-times-repeated, five-fold, subject-grouped
+evaluation. The folds share training data, so the $d_j$ are not independent,
+and the naive variance of their mean, $s^2/J$, is too small. Following Nadeau
+and Bengio, the variance of the mean is inflated to
+\begin{equation}
+\widehat{\operatorname{Var}}(\bar d) \;=\;
+\Bigl(\frac{1}{J} + \frac{n_{\mathrm{test}}}{n_{\mathrm{train}}}\Bigr)\, s^2 ,
+\qquad s^2 = \frac{1}{J-1}\sum_{j}(d_j-\bar d)^2 .
+\label{eq:nb}
+\end{equation}
+With five-fold partitions each test set holds a fifth of the data, so
+$n_{\mathrm{test}}/n_{\mathrm{train}} = 1/4$ in both cohorts (on average 400 of
+2000 qEEG trials and 190.2 of 951 TCD insonations per test fold). The same
+inflation is applied to the paired significance tests, to the equivalence
+tests, and to the power analysis. With $J = 25$ the correction term contributes
+$0.25$ against $0.04$ for $1/J$, so the corrected standard error is
+$\sqrt{7.25} \approx 2.69$ times the uncorrected one. Because the term
+$n_{\mathrm{test}}/n_{\mathrm{train}}$ does not depend on $J$, additional
+repeats of the same cross-validation cannot reduce it: only a larger cohort
+can.
+
+\subsection{Equivalence tests and their power}
+
+Each comparison of the full and reduced feature spaces is a two one-sided test
+(TOST) of $H_0\colon|\mu_d| \ge \Delta$ against $H_1\colon|\mu_d| < \Delta$,
+with margin $\Delta = 0.05$ fixed before analysis. With
+$\mathrm{SE} = \widehat{\operatorname{Var}}(\bar d)^{1/2}$ from
+Eq.~(\ref{eq:nb}),
+\begin{equation}
+t_{\mathrm{L}} = \frac{\bar d + \Delta}{\mathrm{SE}}, \qquad
+t_{\mathrm{U}} = \frac{\bar d - \Delta}{\mathrm{SE}}, \qquad
+p_{\mathrm{TOST}} = \max\bigl\{1 - F_{J-1}(t_{\mathrm{L}}),\; F_{J-1}(t_{\mathrm{U}})\bigr\},
+\end{equation}
+where $F_{\nu}$ is the Student-$t$ distribution function. Equivalently,
+equivalence is declared when the $90\%$ interval
+$\bar d \pm t_{0.95,\,J-1}\,\mathrm{SE}$ lies inside $(-\Delta, \Delta)$.
+Holm adjustment is applied across all 40 tests (five classifiers, two
+modalities, four metrics).
+
+Power is evaluated at a true difference of zero, approximating the joint
+rejection probability with two noncentral $t$ distributions:
+\begin{equation}
+1-\beta \;=\; \max\Bigl\{0,\; G_{J-1,\,-\Delta/\mathrm{SE}}\bigl(-t_{0.95,\,J-1}\bigr)
+\;-\; G_{J-1,\,+\Delta/\mathrm{SE}}\bigl(t_{0.95,\,J-1}\bigr)\Bigr\},
+\end{equation}
+where $G_{\nu,\lambda}$ is the noncentral-$t$ distribution function. Power is
+zero whenever $\Delta < t_{0.95,\,J-1}\,\mathrm{SE}$: the margin is then
+narrower than the half-width the interval would have even for an observed
+difference of exactly zero, and no outcome can establish equivalence. The
+minimum detectable margin $\delta_{80}$ is the smallest $\Delta$ for which
+$1-\beta \ge 0.80$, found by bisection.
+
+\subsection{Threshold sweep}
+
+The reduction chain (correlation screening at $|r| \ge \tau_r$, then
+iterative removal of the descriptor with the largest variance inflation factor
+while any exceeds $\tau_v$) was recomputed for $\tau_r \in \{0.30, 0.35,
+\dots, 0.95\}$ (14 values) and $\tau_v \in \{2.5, 5, 10, 20\}$, on the native
+set and the matched core of each modality: $14 \times 4 \times 2 \times 2 =
+224$ chains. For each of the 56 threshold pairs and each feature space, the
+fraction of candidates retained by qEEG was compared with the fraction retained
+by TCD (Supplementary Table~S9; every chain in Supplementary Data S2).
+
+\subsection{Inference on the redundancy gap}
+
+The gap is the difference in mean absolute off-diagonal correlation over the
+matched core, TCD minus qEEG. Its interval is a percentile bootstrap with
+$2000$ replicates in which \emph{subjects} -- not records -- are resampled with
+replacement, independently within each cohort, and every record of a resampled
+subject is kept. The supporting permutation check pools the off-diagonal
+$|r|$ values of the two matched cores, reassigns them at random to groups of
+the observed sizes $2000$ times, and reports the one-sided $p =
+(1 + \#\{\text{null} \ge \text{observed}\})/(1 + 2000)$. That null asks
+whether a gap this large arises between two arbitrary sets of correlations of
+these sizes; it is weaker than the bootstrap and is reported only as support.
+
+\subsection{Redundancy beyond algebraic construction}
+
+Within each native set, descriptors were standardised, and every descriptor
+other than the generating set was regressed on that set by ordinary least
+squares: the four band powers for qEEG, and peak systolic, end-diastolic and
+mean flow velocity for TCD. The residuals' correlation matrix was then
+summarised in the same way as the raw one (Supplementary Table~S8).
+
+\subsection{Selection stability}
+
+For a selector applied to $M$ training partitions of a set of $d$
+descriptors, let $Z \in \{0,1\}^{M\times d}$ record which descriptors were
+retained, $\hat p_f$ the fraction of partitions retaining descriptor $f$, and
+$\bar k$ the mean number retained. The Nogueira stability index is
+\begin{equation}
+\hat\Phi \;=\; 1 - \frac{\frac{1}{d}\sum_{f=1}^{d}\frac{M}{M-1}\,\hat p_f(1-\hat p_f)}
+{\frac{\bar k}{d}\Bigl(1-\frac{\bar k}{d}\Bigr)} ,
+\end{equation}
+which is $1$ for a selector returning the same subset every time and $0$ in
+expectation for random subsets of the same size. It was computed over $M = 50$
+subject-grouped training partitions. Supervised selectors were run at the
+cardinality of the label-agnostic reduced set ($k = 12$ for qEEG, $k = 7$ for
+TCD), so that the four selectors are compared at matched subset size.
+
+\subsection{Repeated-measures ANOVA and its decomposition}
+
+Within each modality, fold-wise Macro-F1 was analysed with feature-space
+condition (five levels) and classifier (five levels) as within factors and the
+25 folds as subjects. Each effect is tested against its interaction with fold;
+Greenhouse--Geisser corrected $p$ values and generalised $\eta^2$ are reported
+in Table~9. The empirical null permutes the factor labels within each fold
+($1000$ permutations). The decomposition restricts the condition factor to the
+full and reduced sets, and refits the omnibus test with one supervised selector
+removed at a time (Supplementary Table~S11).
+
+\subsection{Supplementary Data S2}
+
+The workbook contains one sheet per result table, including those summarised
+here: per-fold metrics for every modality, condition, classifier, repeat and
+fold; summaries for all seven metrics; the corrected and uncorrected
+equivalence tests and their power; every paired comparison; the chance-level
+tests; all 224 threshold-sweep chains; selection frequencies; the stability
+indices; the structural and family-block summaries; the partial-correlation
+results; the ANOVA and its decomposition; the permutation nulls; the gap
+bootstrap; and the channel-pooling, within-subject and calibration results of
+the main text. A ``Read me'' sheet lists each sheet with its contents and the
+result file it is taken from, and holds formula checks that recompute the
+headline equivalence counts from the sheets.
+
+%=============================================================================
+\section{Cost of reduction}
+%=============================================================================
+
+\FloatBarrier
+\input{build/tables/S1}
+\input{build/tables/S2}
+
+\begin{figure}[!htbp]
+\centering
+\renewcommand{\thefigure}{S1}
+\includegraphics[width=\linewidth]{fig_S1_equivalence.pdf}
+\caption{Equivalence of the full and reduced feature spaces for all 40
+comparisons. Thick coloured bars are the $90\%$ intervals with the correction
+for overlapping folds (Supplementary Table~S1); thin grey bars above them are
+the uncorrected intervals (Supplementary Table~S2). Filled markers are
+equivalent after correction and Holm adjustment, open markers are not; the
+shaded band is the $\pm0.05$ margin. Positive values are a loss from pruning.
+The uncorrected intervals lie inside the margin for most comparisons; once fold
+dependence is accounted for, the qEEG intervals remain inside it while the TCD
+intervals, centred near zero, become too wide to establish equivalence.}
+\label{fig:S1}
+\end{figure}
+
+\FloatBarrier
+\input{build/tables/S3}
+\input{build/tables/S4}
+
+\clearpage
+%=============================================================================
+\section{Discriminative validity}
+%=============================================================================
+
+\input{build/tables/S5}
+
+\clearpage
+%=============================================================================
+\section{Redundancy structure}
+%=============================================================================
+
+\input{build/tables/S6}
+\input{build/tables/S7}
+\input{build/tables/S8}
+\input{build/tables/S9}
+
+\clearpage
+%=============================================================================
+\section{Selection stability}
+%=============================================================================
+
+\input{build/tables/S10}
+
+\begin{figure}[!htbp]
+\centering
+\renewcommand{\thefigure}{S2}
+\includegraphics[width=\linewidth]{fig_S2_selection_frequency.pdf}
+\caption{Selection frequency of each descriptor across the 50 subject-grouped
+training partitions of the stability analysis, for the label-agnostic
+reduced set and the three supervised selectors at matched cardinality. The
+values are those of Supplementary Table~S10. On qEEG the label-agnostic
+pipeline retains the same descriptors almost every time, which is why its
+Nogueira index is the highest of the four (Table~14). On TCD it alternates
+between members of the velocity family, whose correlations are nearly tied,
+while ReliefF retains almost the same subset every time.}
+\label{fig:S2}
+\end{figure}
+
+\clearpage
+%=============================================================================
+\section{Analysis of variance}
+%=============================================================================
+
+\input{build/tables/S11}
+
+\FloatBarrier
+\end{document}

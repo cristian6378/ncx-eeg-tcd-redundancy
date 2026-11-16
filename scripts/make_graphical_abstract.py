@@ -114,7 +114,7 @@ def main() -> None:
     fig.text(cxr, 0.432, "holds at all 56 screening-threshold pairs",
              ha="center", va="top", fontsize=6.0, color=MUTED)
     fig.text(cxr, 0.348,
-             "34 of 40 comparisons equivalent ($\\pm0.05$ Macro-F1)",
+             "no detectable cost of pruning; TCD equivalence untested",
              ha="center", va="top", fontsize=6.0, color=INK)
     fig.text(cxr, 0.245,
              "Algebraic vs. physiological redundancy:\n"

@@ -6,8 +6,8 @@ do not support, one of these tests says which. Several assertions exist
 because the corresponding manuscript statement was once wrong:
 
 * the maximum |r| of the qEEG set is 0.997, not the TCD value of 0.963;
-* six of the 40 equivalence tests fail, not two -- the six belong to two
-  models;
+* without the fold-dependence correction six of the 40 equivalence tests
+  fail, not two; with it -- the analysis the paper now reports -- 21 pass;
 * the threshold grid has 56 cells; 224 counts reduction chains;
 * the TCD between-family correlations reach 0.204, not 0.20;
 * the clinical specificity range for the linear and kernel models starts at
@@ -119,8 +119,23 @@ def test_threshold_grid_has_56_cells_per_space_and_never_reverses():
         assert ag[space]["frac_ordering_holds"] == 1.0
 
 
-def test_equivalence_34_of_40_six_failures_two_models():
+def test_equivalence_corrected_is_primary_21_of_40():
+    """Nadeau-Bengio corrected TOST: the analysis the paper reports."""
     eq = _csv("equivalence_tost.csv")
+    assert len(eq) == 40 and eq.equivalent.sum() == 21
+    assert np.allclose(eq.test_train_ratio, 0.25)
+    by = eq.groupby("modality").equivalent.sum()
+    assert (by["eeg"], by["tcd"]) == (19, 2)
+    eeg_fail = eq[(eq.modality == "eeg") & ~eq.equivalent]
+    assert list(zip(eeg_fail.model, eeg_fail.metric)) == [("Decision Tree", "macro_f1")]
+    tcd_pass = eq[(eq.modality == "tcd") & eq.equivalent]
+    assert set(tcd_pass.metric) == {"specificity_macro"}
+    assert set(tcd_pass.model) == {"Logistic Regression", "SVM (Linear)"}
+
+
+def test_equivalence_uncorrected_34_of_40_six_failures_two_models():
+    """As first computed, without the correction (Supplementary Table S2)."""
+    eq = _csv("equivalence_tost_uncorrected.csv")
     assert len(eq) == 40 and eq.equivalent.sum() == 34
     fail = eq[~eq.equivalent]
     assert len(fail) == 6
@@ -129,12 +144,34 @@ def test_equivalence_34_of_40_six_failures_two_models():
     assert "specificity_macro" not in set(fail.metric)
 
 
-def test_tost_power_explains_both_failures():
+def test_corrected_tost_power():
     pw = _csv("tost_power.csv").set_index(["modality", "model"])
+    tcd = pw.loc["tcd"]
+    assert (tcd.power_at_0p05 == 0.0).sum() == 4
+    assert tcd.loc["SVM (Linear)", "power_at_0p05"] == pytest.approx(0.535)
+    assert (tcd.min_margin_80pct.min(), tcd.min_margin_80pct.max()) \
+        == pytest.approx((0.0616, 0.1405), abs=1e-4)
+    eeg = pw.loc["eeg"]
+    assert (eeg.power_at_0p05.min(), eeg.power_at_0p05.max()) \
+        == pytest.approx((0.589, 1.0), abs=1e-3)
+
+
+def test_uncorrected_tost_power():
+    pw = _csv("tost_power_uncorrected.csv").set_index(["modality", "model"])
     assert pw.loc[("tcd", "Decision Tree"), "power_at_0p05"] == pytest.approx(0.754)
     assert pw.loc[("tcd", "Random Forest"), "power_at_0p05"] == pytest.approx(0.803)
-    assert pw.loc[("tcd", "Decision Tree"), "min_margin_80pct"] >= 0.0498
     assert (pw.loc["eeg", "power_at_0p05"] == 1.0).all()
+
+
+def test_no_paired_comparison_survives_correction():
+    c = _csv("statistical_comparisons.csv")
+    assert (c.p_nadeau_bengio_holm.dropna() >= 0.05).all()   # NaN: AUC of SVMs
+    m = c[(c.modality == "tcd") & (c.metric == "macro_f1")
+          & (c.comparison == "reduced_vs_mrmr")].set_index("model")
+    # significant only under the uncorrected Wilcoxon test
+    assert m.loc["SVM (RBF)", "p_wilcoxon_holm"] == pytest.approx(0.0022, abs=1e-4)
+    assert m.loc["SVM (RBF)", "p_nadeau_bengio"] == pytest.approx(0.108, abs=1e-3)
+    assert m.loc["Random Forest", "p_nadeau_bengio"] == pytest.approx(0.154, abs=1e-3)
 
 
 def test_permutation_nulls():
